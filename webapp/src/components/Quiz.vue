@@ -1,9 +1,9 @@
 <template>
   <div>
-    <div v-if="loadingAttempt == 'loading' && attemptData.finished == false">
+    <div v-if="(loadingAttempt || loadingQuiz)">
       attempt loading
     </div>
-    <div v-if="loadingAttempt == 'complete' && attemptData.finished == false">
+    <div v-if="(!loadingAttempt && !loadingQuiz)">
       <div class="metadata">
         <h1>Quiz: {{ quizData.metadata.quizName }}</h1>
         <h2>Author: {{ quizData.metadata.quizAuthor }}</h2>
@@ -20,7 +20,7 @@
         backend data: {{ attemptData }}
       </div>
     </div>
-  <div v-if="loadingAttempt == 'complete' && attemptData.finished == true">
+  <div v-if="(!loadingAttempt && !loadingQuiz) && attemptData.finished">
     you have already completed this quiz
   </div>
   </div>
@@ -34,25 +34,10 @@ export default {
   data() {
     return {
       currentQuestion: 1,
-      loadingAttempt: "loading",
-      attemptData: {
-        attemptHash: "asdfasdfasdf",
-        attemptName: "eddie",
-        lastCompleted: 0,
-        completedAnswers: [],
-        finished: false
-      },
-      quizData: {
-        metadata: {
-          quizName: "Math quiz 1",
-          quizAuthor: "John Doe",
-          quizInstructor: "Jane Doe",
-        },
-        questions: [
-          { number: 1, header: "Add two numbers", body: "x = 2 + 3", answers: ["1", "4", "5", "17"] },
-          { number: 2, header: "Subract two numbers", body: "y = 10 - 3", answers: ["2", "3", "0", "7"] },
-        ]
-      }
+      loadingQuiz: true,
+      loadingAttempt: true,
+      attemptData: undefined,
+      quizData: undefined
     }
   },
   methods: {
@@ -73,13 +58,21 @@ export default {
         return;
       }
     },
-    getAttempt(attemptHash) {
-      //call api to get attempt data
-      setTimeout(() => {this.loadingAttempt = "complete"}, 1000);
+    async getQuiz(quizId) {
+      const data = await fetch(`http://localhost:3000/quiz/${quizId}`);
+      return data.json()
+    },
+    async getAttempt(attemptHash) {
+      const data = await fetch(`http://localhost:3000/attempt/${attemptHash}`);
+      return data.json()
     }
   },
-  mounted() {
-    this.getAttempt("asdfasdfasdf");
+  async mounted() {
+    this.quizData = await this.getQuiz("1");
+    this.loadingQuiz = false;
+    this.attemptData = await this.getAttempt("asdf");
+    this.loadingAttempt = false
+
   }
 }
 

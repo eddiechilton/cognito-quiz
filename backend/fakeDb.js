@@ -49,7 +49,7 @@ var fakeDb = {
     ],
     attemptData: [
       {
-        attemptHash: "asdfasdfasdf",
+        attemptHash: "asdf",
         attemptName: "eddie",
         lastCompleted: 0,
         completedAnswers: [],
