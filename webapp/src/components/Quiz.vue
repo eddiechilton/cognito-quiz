@@ -19,10 +19,27 @@
         </button>
       </div>
     </div>
+    <div v-if="finishedModal" class="mask">Congrats, you've completed this quiz</div>
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.finished-modal {
+  width: 100%;
+  height: 100%;
+  background-color: blue;
+  z-index: 10;
+}
+.mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  background-color: blue;
+}
+</style>
 
 <script>
 
@@ -43,6 +60,13 @@ export default {
       } else {
         return 1;
       }
+    },
+    finishedModal() {
+      if (this.attemptData?.finished) {
+        return true;
+      } else {
+        return false
+      }
     }
   },
   methods: {
@@ -51,11 +75,10 @@ export default {
         await this.beginAttempt(answer);
         return;
       } else if (this.currentQuestion >= this.quizData.questions.length) {
-        await this.updateAttempt(answer, this.attemptData.attemptHash)
-        this.finishedModal = true;
+        await this.updateAttempt(answer, this.attemptData.attemptHash, true)
         return;
       } else {
-        await this.updateAttempt(answer, this.attemptData.attemptHash);
+        await this.updateAttempt(answer, this.attemptData.attemptHash, false);
         await this.getAttempt(this.$route.params.attemptHash);
         return;
       }
@@ -87,7 +110,7 @@ export default {
       this.attemptData = await data.json();
       this.$router.push(`/quiz/${this.quizData.quizId}/${this.attemptData.attemptHash}`)
     },
-    async updateAttempt(answer, attemptHash) {
+    async updateAttempt(answer, attemptHash, finished) {
       const data = await fetch('http://localhost:3000/attempt/', {
         method: 'PUT',
         headers: {
@@ -97,6 +120,7 @@ export default {
         body: JSON.stringify({
           attemptHash,
           answer,
+          finished
         })
       });
       this.attemptData = await data.json();

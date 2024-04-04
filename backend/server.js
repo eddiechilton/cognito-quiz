@@ -22,7 +22,6 @@ app.get("/attempt/:attemptHash", (req, res) => {
   const attemptData = fakeDb.attemptData.find(
     attempt => attempt.attemptHash.toString() == req.params.attemptHash.toString()
   );
-  console.log("get attempt",attemptData)
   res.send(attemptData);
 });
 
@@ -33,18 +32,15 @@ app.post("/attempt", (req, res) => {
     finished: false,
   }
   fakeDb.attemptData.push(newAttemptData);
-  console.log("poist attempt",JSON.stringify(newAttemptData))
-
   res.send(JSON.stringify(newAttemptData));
 });
 
 app.put("/attempt", (req, res) => {
-  console.log(req.body)
   const attemptIndex = fakeDb.attemptData.findIndex(
     attempt => attempt.attemptHash.toString() == req.body.attemptHash.toString()
   );
   fakeDb.attemptData[attemptIndex].completedAnswers.push(req.body.answer);
-  console.log("put attempt",JSON.stringify(fakeDb.attemptData[attemptIndex]))
+  fakeDb.attemptData[attemptIndex].finished = req.body.finished;
   res.send(JSON.stringify(fakeDb.attemptData[attemptIndex]));
 });
 
