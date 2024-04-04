@@ -20,6 +20,18 @@ var fakeDb = {
             body: "y = 10 - 3",
             answers: ["2", "3", "0", "7"],
           },
+          {
+            number: 3,
+            header: "Subract two numbers",
+            body: "y = 10 - 3",
+            answers: ["2", "3", "0", "7"],
+          },
+          {
+            number: 4,
+            header: "Subract two numbers",
+            body: "y = 10 - 3",
+            answers: ["2", "3", "0", "7"],
+          },
         ],
         correctAnswers: ["5","7"]
       },
@@ -50,8 +62,6 @@ var fakeDb = {
     attemptData: [
       {
         attemptHash: "asdf",
-        attemptName: "eddie",
-        lastCompleted: 0,
         completedAnswers: [],
         finished: false,
       },
