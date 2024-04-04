@@ -1,16 +1,24 @@
 <template>
   <div>
-    <div class="metadata">
-      <h1>Quiz: {{ quizData.metadata.quizName }}</h1>
-      <h2>Author: {{ quizData.metadata.quizAuthor }}</h2>
-      <h2>Instructor: {{ quizData.metadata.quizInstructor }}</h2>
-      <h2>Current Question:{{ currentQuestion }}/{{ quizData.questions.length }}</h2>
+    <div v-if="loadingAttempt == 'loading'">
+      attempt loading
     </div>
-    <div class="current-question" v-for="question in quizData.questions" v-bind:key="question"
-      v-show="currentQuestion == question.number">
-      <h3>{{ question.header }}</h3>
-      <h3>{{ question.body }}</h3>
-      <button v-for="answer in question.answers" v-bind:key="answer" @click="nextQuestion()">{{ answer }} </button>
+    <div v-if="loadingAttempt == 'complete'">
+      <div class="metadata">
+        <h1>Quiz: {{ quizData.metadata.quizName }}</h1>
+        <h2>Author: {{ quizData.metadata.quizAuthor }}</h2>
+        <h2>Instructor: {{ quizData.metadata.quizInstructor }}</h2>
+        <h2>Current Question:{{ currentQuestion }}/{{ quizData.questions.length }}</h2>
+      </div>
+      <div class="current-question" v-for="question in quizData.questions" v-bind:key="question"
+        v-show="currentQuestion == question.number">
+        <h3>{{ question.header }}</h3>
+        <h3>{{ question.body }}</h3>
+        <button v-for="answer in question.answers" v-bind:key="answer" @click="nextQuestion()">{{ answer }} </button>
+      </div>
+      <div>
+        backend data: {{ attemptData }}
+      </div>
     </div>
   </div>
 </template>
@@ -22,6 +30,13 @@ export default {
   data() {
     return {
       currentQuestion: 1,
+      loadingAttempt: "complete",
+      attemptData: {
+        attemptHash: "asdfasdfasdf",
+        attemptName: "eddie",
+        lastCompleted: 0,
+        completedAnswers: [],
+      },
       quizData: {
         metadata: {
           quizName: "Math quiz 1",
@@ -39,7 +54,6 @@ export default {
     nextQuestion() {
       if (this.currentQuestion == 0) {
         //create hash
-        console.log('here')
         this.currentQuestion++;
         return;
       } else if (this.currentQuestion >= this.quizData.questions.length) {
@@ -49,6 +63,12 @@ export default {
         this.currentQuestion++;
         return;
       }
+    },
+    getAttempt(attemptHash) {
+      //call api to get attempt data
+      this.loadingAttempt = "complete";
+
+
     }
   }
 }
