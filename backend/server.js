@@ -2,7 +2,11 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 var fakeDb = require("./fakeDb");
+const { createHash } = require('crypto');
 
+function hash(string) {
+  return createHash('sha256').update(string).digest('hex');
+}
 app.use(express.json());
 app.use(cors());
 
@@ -26,8 +30,9 @@ app.get("/attempt/:attemptHash", (req, res) => {
 });
 
 app.post("/attempt", (req, res) => {
+  const newHash = hash(Date.now().toString+req.body);
   const newAttemptData = {
-    attemptHash: "newhash",
+    attemptHash: newHash,
     completedAnswers: [req.body.answer],
     finished: false,
   }

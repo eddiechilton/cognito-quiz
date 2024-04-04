@@ -8,8 +8,7 @@
         <h1>Quiz: {{ quizData.metadata.quizName }}</h1>
         <h2>Author: {{ quizData.metadata.quizAuthor }}</h2>
         <h2>Instructor: {{ quizData.metadata.quizInstructor }}</h2>
-        <h2>Current Question:{{ currentQuestion }}/{{ quizData.questions.length }}</h2>
-        <h2>{{ this?.attemptData }} </h2>
+        <h2 v-if="!finishedModal">Current Question:{{ currentQuestion }}/{{ quizData.questions.length }}</h2>
       </div>
       <div class="current-question" v-for="question in quizData.questions" v-bind:key="question"
         v-show="currentQuestion == question.number">
@@ -19,17 +18,26 @@
         </button>
       </div>
     </div>
-    <div v-if="finishedModal" class="mask">Congrats, you've completed this quiz</div>
+    <div v-if="finishedModal" class="mask">
+      <div class="modal">
+        Congrats, you've completed this quiz
+      </div>
+    </div>
   </div>
 </template>
 
 <style scoped>
-.finished-modal {
-  width: 100%;
-  height: 100%;
-  background-color: blue;
-  z-index: 10;
+.modal {
+  position: fixed;
+  top: 40%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1001;
+  opacity: 100%;
+  background: whitesmoke;
+  padding: 3%
 }
+
 .mask {
   position: fixed;
   top: 0;
@@ -38,6 +46,7 @@
   height: 100%;
   z-index: 1000;
   background-color: blue;
+  opacity: 50%;
 }
 </style>
 
@@ -134,7 +143,7 @@ export default {
       await this.getAttempt(this.$route.params.attemptHash);
     }
     this.loadingAttempt = false
-  }
+  },
 }
 
 </script>
