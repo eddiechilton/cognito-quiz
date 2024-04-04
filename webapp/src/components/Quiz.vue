@@ -1,14 +1,16 @@
 <template>
   <div>
     <div class="metadata">
-      <h1>{{ quizData.metadata.quizName }}</h1>
-      <h2>{{ quizData.metadata.quizAuthor }}</h2>
-      <h2>{{ quizData.metadata.quizInstructor }}</h2>
+      <h1>Quiz: {{ quizData.metadata.quizName }}</h1>
+      <h2>Author: {{ quizData.metadata.quizAuthor }}</h2>
+      <h2>Instructor: {{ quizData.metadata.quizInstructor }}</h2>
+      <h2>Current Question:{{ currentQuestion }}/{{ quizData.questions.length }}</h2>
     </div>
-    <div class="current-question" v-for="question in quizData.questions" v-bind:key="question">
+    <div class="current-question" v-for="question in quizData.questions" v-bind:key="question"
+      v-show="currentQuestion == question.number">
       <h3>{{ question.header }}</h3>
       <h3>{{ question.body }}</h3>
-      <h3 v-for="answer in question.answers" v-bind:key="answer">{{ answer }}</h3>
+      <button v-for="answer in question.answers" v-bind:key="answer" @click="nextQuestion()">{{ answer }} </button>
     </div>
   </div>
 </template>
@@ -19,6 +21,7 @@
 export default {
   data() {
     return {
+      currentQuestion: 1,
       quizData: {
         metadata: {
           quizName: "Math quiz 1",
@@ -26,19 +29,27 @@ export default {
           quizInstructor: "Jane Doe",
         },
         questions: [
-          { header: "Question 1", body: "What is x?", answers: ["1", "#", "5", "17"] },
-          { header: "Question 1", body: "What is y?", answers: ["2", "3", "0", "7"] },
+          { number: 1, header: "Add two numbers", body: "x = 2 + 3", answers: ["1", "4", "5", "17"] },
+          { number: 2, header: "Subract two numbers", body: "y = 10 - 3", answers: ["2", "3", "0", "7"] },
         ]
       }
     }
   },
   methods: {
-    increment() {
-      this.count++
+    nextQuestion() {
+      if (this.currentQuestion == 0) {
+        //create hash
+        console.log('here')
+        this.currentQuestion++;
+        return;
+      } else if (this.currentQuestion >= this.quizData.questions.length) {
+        //end quiz
+        return;
+      } else {
+        this.currentQuestion++;
+        return;
+      }
     }
-  },
-  mounted() {
-    console.log(`The initial count is ${this.count}.`)
   }
 }
 </script>
