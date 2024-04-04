@@ -1,9 +1,9 @@
 <template>
   <div>
-    <div v-if="loadingAttempt == 'loading'">
+    <div v-if="loadingAttempt == 'loading' && attemptData.finished == false">
       attempt loading
     </div>
-    <div v-if="loadingAttempt == 'complete'">
+    <div v-if="loadingAttempt == 'complete' && attemptData.finished == false">
       <div class="metadata">
         <h1>Quiz: {{ quizData.metadata.quizName }}</h1>
         <h2>Author: {{ quizData.metadata.quizAuthor }}</h2>
@@ -14,28 +14,33 @@
         v-show="currentQuestion == question.number">
         <h3>{{ question.header }}</h3>
         <h3>{{ question.body }}</h3>
-        <button v-for="answer in question.answers" v-bind:key="answer" @click="nextQuestion()">{{ answer }} </button>
+        <button v-for="answer in question.answers" v-bind:key="answer" @click="markAnswer(answer)">{{ answer }} </button>
       </div>
       <div>
         backend data: {{ attemptData }}
       </div>
     </div>
+  <div v-if="loadingAttempt == 'complete' && attemptData.finished == true">
+    you have already completed this quiz
+  </div>
   </div>
 </template>
 
 <style scoped></style>
 
 <script>
+
 export default {
   data() {
     return {
       currentQuestion: 1,
-      loadingAttempt: "complete",
+      loadingAttempt: "loading",
       attemptData: {
         attemptHash: "asdfasdfasdf",
         attemptName: "eddie",
         lastCompleted: 0,
         completedAnswers: [],
+        finished: false
       },
       quizData: {
         metadata: {
@@ -51,13 +56,17 @@ export default {
     }
   },
   methods: {
+    markAnswer(answer) {
+      this.attemptData.completedAnswers[this.currentQuestion-1] = answer;
+      this.nextQuestion();
+    },
     nextQuestion() {
       if (this.currentQuestion == 0) {
         //create hash
         this.currentQuestion++;
         return;
       } else if (this.currentQuestion >= this.quizData.questions.length) {
-        //end quiz
+        this.attemptData.finished = true;
         return;
       } else {
         this.currentQuestion++;
@@ -66,10 +75,12 @@ export default {
     },
     getAttempt(attemptHash) {
       //call api to get attempt data
-      this.loadingAttempt = "complete";
-
-
+      setTimeout(() => {this.loadingAttempt = "complete"}, 1000);
     }
+  },
+  mounted() {
+    this.getAttempt("asdfasdfasdf");
   }
 }
+
 </script>
