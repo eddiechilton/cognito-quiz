@@ -20,28 +20,32 @@ app.get("/quiz/:quizId", (req, res) => {
 
 app.get("/attempt/:attemptHash", (req, res) => {
   const attemptData = fakeDb.attemptData.find(
-    attempt => attempt.attemptHash.toString() == req.body.attemptHash.toString()
+    attempt => attempt.attemptHash.toString() == req.params.attemptHash.toString()
   );
+  console.log("get attempt",attemptData)
   res.send(attemptData);
 });
 
 app.post("/attempt", (req, res) => {
-  const hash = "hash"
-  fakeDb.attemptData.push({
-    attemptHash: hash,
+  const newAttemptData = {
+    attemptHash: "newhash",
     completedAnswers: [req.body.answer],
     finished: false,
-  });
-  res.send(true);
+  }
+  fakeDb.attemptData.push(newAttemptData);
+  console.log("poist attempt",JSON.stringify(newAttemptData))
+
+  res.send(JSON.stringify(newAttemptData));
 });
 
 app.put("/attempt", (req, res) => {
+  console.log(req.body)
   const attemptIndex = fakeDb.attemptData.findIndex(
     attempt => attempt.attemptHash.toString() == req.body.attemptHash.toString()
   );
   fakeDb.attemptData[attemptIndex].completedAnswers.push(req.body.answer);
-  console.log(fakeDb.attemptData)
-  res.send(true);
+  console.log("put attempt",JSON.stringify(fakeDb.attemptData[attemptIndex]))
+  res.send(JSON.stringify(fakeDb.attemptData[attemptIndex]));
 });
 
 app.listen(3000, () => console.log("listening on port 3000."));

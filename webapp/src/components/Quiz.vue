@@ -9,6 +9,7 @@
         <h2>Author: {{ quizData.metadata.quizAuthor }}</h2>
         <h2>Instructor: {{ quizData.metadata.quizInstructor }}</h2>
         <h2>Current Question:{{ currentQuestion }}/{{ quizData.questions.length }}</h2>
+        <h2>{{ this?.attemptData }} </h2>
       </div>
       <div class="current-question" v-for="question in quizData.questions" v-bind:key="question"
         v-show="currentQuestion == question.number">
@@ -28,29 +29,39 @@
 export default {
   data() {
     return {
-      currentQuestion: 1,
       loadingQuiz: true,
       loadingAttempt: true,
-      attemptHash: "hash",
+      attemptData: undefined,
       quizData: undefined,
+      finishedModal: false,
+    }
+  },
+  computed: {
+    currentQuestion() {
+      if (this.attemptData?.completedAnswers) {
+        return this.attemptData.completedAnswers.length + 1;
+      } else {
+        return 1;
+      }
     }
   },
   methods: {
     async markAnswer(answer) {
       if (this.currentQuestion == 1) {
-        await this.beginAttempt(answer)
-        this.currentQuestion++;
+        await this.beginAttempt(answer);
         return;
       } else if (this.currentQuestion >= this.quizData.questions.length) {
-        await this.updateAttempt(answer, this.attemptHash)
+        await this.updateAttempt(answer, this.attemptData.attemptHash)
+        this.finishedModal = true;
         return;
       } else {
-        await this.updateAttempt(answer, this.attemptHash)
-        this.currentQuestion++;
+        await this.updateAttempt(answer, this.attemptData.attemptHash);
+        await this.getAttempt(this.$route.params.attemptHash);
         return;
       }
     },
     async getQuiz(quizId) {
+      console.log("quizId = ", quizId)
       const data = await fetch(`http://localhost:3000/quiz/${quizId}`);
       if (data) {
         return data.json()
@@ -60,14 +71,10 @@ export default {
     },
     async getAttempt(attemptHash) {
       const data = await fetch(`http://localhost:3000/attempt/${attemptHash}`);
-      if (data) {
-        return data.json()
-      } else {
-        return "eqwerqwer"
-      }
+      this.attemptData = await data.json();
     },
     async beginAttempt(answer) {
-      const beginAttemptSuccess = await fetch('http://localhost:3000/attempt/', {
+      const data = await fetch('http://localhost:3000/attempt/', {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
@@ -76,10 +83,12 @@ export default {
         body: JSON.stringify({
           answer
         })
-      });
+      })
+      this.attemptData = await data.json();
+      this.$router.push(`/quiz/${this.quizData.quizId}/${this.attemptData.attemptHash}`)
     },
     async updateAttempt(answer, attemptHash) {
-      await fetch('http://localhost:3000/attempt/', {
+      const data = await fetch('http://localhost:3000/attempt/', {
         method: 'PUT',
         headers: {
           'Accept': 'application/json',
@@ -90,11 +99,16 @@ export default {
           answer,
         })
       });
+      this.attemptData = await data.json();
+      this.$router.push(`/quiz/${this.quizData.quizId}/${this.attemptData.attemptHash}`)
     }
   },
   async mounted() {
-    this.quizData = await this.getQuiz("1");
+    this.quizData = await this.getQuiz(this.$route.params.quizId);
     this.loadingQuiz = false;
+    if (this.$route.params.attemptHash) {
+      await this.getAttempt(this.$route.params.attemptHash);
+    }
     this.loadingAttempt = false
   }
 }

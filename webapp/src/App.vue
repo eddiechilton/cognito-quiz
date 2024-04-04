@@ -1,25 +1,18 @@
 <template>
-  <div>
-    <quiz />
-  </div>
+  <router-view />
 </template>
 
 <style scoped>
 </style>
 
 <script>
-import Quiz from './components/Quiz.vue'
 
 export default {
-  components: { Quiz},
   data() {
     return {
-    
     }
   },
   methods: {
-
   },
-
 }
 </script>
