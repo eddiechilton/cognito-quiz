@@ -57,18 +57,22 @@ app.get("/score/:attemptHash", (req, res) => {
   const quizData = fakeDb.quizData.find(
     quiz => quiz.quizId == fakeDb.attemptData[attemptIndex].quizId
   );
-  var totalCorrect = 0
-  fakeDb.attemptData[attemptIndex].completedAnswers.forEach((answer, index) => {
-    if (answer == quizData.correctAnswers[index]) {
-      totalCorrect++
-      console.log("correct")
-    } else {
-      console.log("incorrect")
+  var resultsArray = fakeDb.attemptData[attemptIndex].completedAnswers.map((answer, index) => {
+    const { number, header, body } = quizData.questions[index]
+    const correctAnswer = quizData.correctAnswers[index]
+    const selectedAnswer = answer
+    const isCorrect = (answer == quizData.correctAnswers[index])
+    return {
+      questionNumber: number,
+      instructions: header,
+      questionText: body,
+      correctAnswer,
+      selectedAnswer,
+      isCorrect
     }
   })
-  const score = totalCorrect/quizData.correctAnswers.length
-  fakeDb.attemptData[attemptIndex].score = score
-  res.send({score});
+  fakeDb.attemptData[attemptIndex].results = resultsArray
+  res.send(resultsArray);
 });
 
 app.listen(3000, () => console.log("listening on port 3000."));

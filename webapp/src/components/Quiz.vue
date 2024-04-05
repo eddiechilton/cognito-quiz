@@ -5,15 +5,16 @@
     </div>
     <div v-if="(!loadingAttempt && !loadingQuiz)">
       <div class="metadata">
-        <h1>Quiz: {{ quizData.metadata.quizName }}</h1>
-        <h2 v-if="!finishedModal">Current Question: {{ currentQuestion }}/{{ quizData.questions.length }}</h2>
+        <h1>{{ quizData.metadata.quizName }}</h1>
+        <h1 v-if="!finishedModal">Question: {{ currentQuestion }}/{{ quizData.questions.length }}</h1>
       </div>
+
       <div class="current-question" v-for="question in quizData.questions" v-bind:key="question"
         v-show="currentQuestion == question.number">
-        <h3>{{ question.header }}</h3>
-        <h3>{{ question.body }}</h3>
-        <div v-for="answer in question.answers" v-bind:key="answer">
-          <input type="radio" v-model="chosenAnswer" :value="answer" :name="question">
+        <h3 class="question-header">{{ question.header }}</h3>
+        <h3 class="question-header">{{ question.body }}</h3>
+        <div class="answer" v-for="answer in question.answers" v-bind:key="answer">
+          <input type="radio" v-model="chosenAnswer" :value="answer" :name="question" :id="answer">
           <label :for="answer">{{ answer }}</label>
         </div>
 
@@ -22,21 +23,64 @@
     </div>
     <div v-if="finishedModal" class="mask">
       <div class="modal">
-        Congrats, you've completed this quiz
-        <div v-if="attemptData?.score !== undefined">You have scored a {{ attemptData.score*100 }}</div>
+        Congrats, you've completed this quiz!
+        <div v-if="attemptData?.results !== undefined">
+          <h2 style="text-align: center">RESULTS:</h2>
+          <table>
+            <tr>
+              <th>Question Number</th>
+              <th>Instructions</th>
+              <th>Question</th>
+              <th>Correct Answer</th>
+              <th>Your Answer</th>
+              <th>Correct</th>
+            </tr>
+            <tr v-for="result in attemptData.results" v-bind:key="result">
+              <td>{{ result.questionNumber }}</td>
+              <td>{{ result.instructions }}</td>
+              <td>{{ result.questionText }}</td>
+              <td>{{ result.correctAnswer }}</td>
+              <td>{{ result.selectedAnswer }}</td>
+              <td>{{ result.isCorrect }}</td>
+            </tr>
+          </table>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
-<style scoped>
-.modal {
+<style>
+.question-header, .current-question {
+  text-align: center;
+}
+.current-question {
   position: fixed;
-  top: 40%;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 1001;
+}
+
+
+th,
+td,
+tr {
+  padding: 10px;
+  text-align: center;
   opacity: 100%;
+
+}
+
+td:nth-child(even),
+th:nth-child(even) {
+  background-color: #b8a0cb;
+}
+
+.modal {
+  position: fixed;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10000;
   background: whitesmoke;
   padding: 3%
 }
@@ -47,9 +91,8 @@
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 1000;
-  background-color: blue;
-  opacity: 50%;
+  z-index: 100;
+  background-color: rgb(101, 101, 143);
 }
 </style>
 
