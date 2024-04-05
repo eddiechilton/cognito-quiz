@@ -30,11 +30,12 @@ app.get("/attempt/:attemptHash", (req, res) => {
 });
 
 app.post("/attempt", (req, res) => {
-  const newHash = hash(Date.now().toString+req.body);
+  const newHash = hash(Math.random()+req.body);
   const newAttemptData = {
     attemptHash: newHash,
     completedAnswers: [req.body.answer],
     finished: false,
+    quizId: req.body.quizId
   }
   fakeDb.attemptData.push(newAttemptData);
   res.send(JSON.stringify(newAttemptData));
@@ -47,6 +48,27 @@ app.put("/attempt", (req, res) => {
   fakeDb.attemptData[attemptIndex].completedAnswers.push(req.body.answer);
   fakeDb.attemptData[attemptIndex].finished = req.body.finished;
   res.send(JSON.stringify(fakeDb.attemptData[attemptIndex]));
+});
+
+app.get("/score/:attemptHash", (req, res) => {
+  const attemptIndex = fakeDb.attemptData.findIndex(
+    attempt => attempt.attemptHash.toString() == req.params.attemptHash.toString()
+  );
+  const quizData = fakeDb.quizData.find(
+    quiz => quiz.quizId == fakeDb.attemptData[attemptIndex].quizId
+  );
+  var totalCorrect = 0
+  fakeDb.attemptData[attemptIndex].completedAnswers.forEach((answer, index) => {
+    if (answer == quizData.correctAnswers[index]) {
+      totalCorrect++
+      console.log("correct")
+    } else {
+      console.log("incorrect")
+    }
+  })
+  const score = totalCorrect/quizData.correctAnswers.length
+  fakeDb.attemptData[attemptIndex].score = score
+  res.send({score});
 });
 
 app.listen(3000, () => console.log("listening on port 3000."));

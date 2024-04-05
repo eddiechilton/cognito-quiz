@@ -6,21 +6,24 @@
     <div v-if="(!loadingAttempt && !loadingQuiz)">
       <div class="metadata">
         <h1>Quiz: {{ quizData.metadata.quizName }}</h1>
-        <h2>Author: {{ quizData.metadata.quizAuthor }}</h2>
-        <h2>Instructor: {{ quizData.metadata.quizInstructor }}</h2>
-        <h2 v-if="!finishedModal">Current Question:{{ currentQuestion }}/{{ quizData.questions.length }}</h2>
+        <h2 v-if="!finishedModal">Current Question: {{ currentQuestion }}/{{ quizData.questions.length }}</h2>
       </div>
       <div class="current-question" v-for="question in quizData.questions" v-bind:key="question"
         v-show="currentQuestion == question.number">
         <h3>{{ question.header }}</h3>
         <h3>{{ question.body }}</h3>
-        <button v-for="answer in question.answers" v-bind:key="answer" @click="markAnswer(answer)">{{ answer }}
-        </button>
+        <div v-for="answer in question.answers" v-bind:key="answer">
+          <input type="radio" v-model="chosenAnswer" :value="answer" :name="question">
+          <label :for="answer">{{ answer }}</label>
+        </div>
+
+        <button @click="markAnswer(chosenAnswer)" :disabled="!chosenAnswer">submit</button>
       </div>
     </div>
     <div v-if="finishedModal" class="mask">
       <div class="modal">
         Congrats, you've completed this quiz
+        <div v-if="attemptData?.score !== undefined">You have scored a {{ attemptData.score*100 }}</div>
       </div>
     </div>
   </div>
@@ -59,7 +62,7 @@ export default {
       loadingAttempt: true,
       attemptData: undefined,
       quizData: undefined,
-      finishedModal: false,
+      chosenAnswer: undefined,
     }
   },
   computed: {
@@ -81,19 +84,18 @@ export default {
   methods: {
     async markAnswer(answer) {
       if (this.currentQuestion == 1) {
-        await this.beginAttempt(answer);
-        return;
+        await this.beginAttempt(answer, this.quizData.quizId);
       } else if (this.currentQuestion >= this.quizData.questions.length) {
         await this.updateAttempt(answer, this.attemptData.attemptHash, true)
-        return;
+        await this.scoreQuiz(this.attemptData.attemptHash)
+        await this.getAttempt(this.$route.params.attemptHash);
       } else {
         await this.updateAttempt(answer, this.attemptData.attemptHash, false);
         await this.getAttempt(this.$route.params.attemptHash);
-        return;
       }
+      this.chosenAnswer = undefined
     },
     async getQuiz(quizId) {
-      console.log("quizId = ", quizId)
       const data = await fetch(`http://localhost:3000/quiz/${quizId}`);
       if (data) {
         return data.json()
@@ -101,11 +103,15 @@ export default {
         return "eqwerqwer"
       }
     },
+    async scoreQuiz(attemptHash) {
+      const data = await fetch(`http://localhost:3000/score/${attemptHash}`);
+      console.log(await data.json());
+    },
     async getAttempt(attemptHash) {
       const data = await fetch(`http://localhost:3000/attempt/${attemptHash}`);
       this.attemptData = await data.json();
     },
-    async beginAttempt(answer) {
+    async beginAttempt(answer, quizId) {
       const data = await fetch('http://localhost:3000/attempt/', {
         method: 'POST',
         headers: {
@@ -113,7 +119,8 @@ export default {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          answer
+          answer,
+          quizId
         })
       })
       this.attemptData = await data.json();
