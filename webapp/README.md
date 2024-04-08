@@ -1,29 +1,14 @@
-# webapp
+To run backend:
 
-This template should help get you started developing with Vue 3 in Vite.
+1. cd into backend dir
+2. npm install
+3. node server.js
 
-## Recommended IDE Setup
+To run webapp:
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+1. cd into webapp dir
+2. npm install
+3. npm run dev
+4. navigate to http://localhost:5173/#/quiz/{insert quiz id here}
 
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
+There are currently two tests in the db, with ids of 1 & 2

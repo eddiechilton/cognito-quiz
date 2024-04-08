@@ -13,10 +13,10 @@
         v-show="currentQuestion == question.number">
         <h3 class="question-header">{{ question.header }}</h3>
         <h3 class="question-header">{{ question.body }}</h3>
-        <div class="answer" v-for="answer in question.answers" v-bind:key="answer">
+        <form v-for="answer in question.answers" v-bind:key="answer">
           <input type="radio" v-model="chosenAnswer" :value="answer" :name="question" :id="answer">
-          <label :for="answer">{{ answer }}</label>
-        </div>
+          <label :for="answer" class="answer" >{{ answer }}</label>
+        </form>
 
         <button @click="markAnswer(chosenAnswer)" :disabled="!chosenAnswer">submit</button>
       </div>
@@ -51,7 +51,7 @@
 </template>
 
 <style>
-.question-header, .current-question {
+.question-header, .current-question, .answer {
   text-align: center;
 }
 .current-question {
@@ -59,7 +59,24 @@
   left: 50%;
   transform: translateX(-50%);
 }
+.answer {
+  display: flex;
+  padding: 10px 5px;
+  background-color: #b8a0cb;
+  margin: 10px;
+  border-radius: 5%;
+  justify-content: center;
+  
+}
 
+input[type="radio"]{
+  visibility: hidden;
+  height: 0;
+  width: 0;
+}
+input[type="radio"]:checked + label{
+  background-color: #8d57b8;
+}
 
 th,
 td,
@@ -148,7 +165,6 @@ export default {
     },
     async scoreQuiz(attemptHash) {
       const data = await fetch(`http://localhost:3000/score/${attemptHash}`);
-      console.log(await data.json());
     },
     async getAttempt(attemptHash) {
       const data = await fetch(`http://localhost:3000/attempt/${attemptHash}`);
