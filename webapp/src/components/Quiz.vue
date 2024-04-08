@@ -15,7 +15,7 @@
         <h3 class="question-header">{{ question.body }}</h3>
         <form v-for="answer in question.answers" v-bind:key="answer">
           <input type="radio" v-model="chosenAnswer" :value="answer" :name="question" :id="answer">
-          <label :for="answer" class="answer" >{{ answer }}</label>
+          <label :for="answer" class="answer">{{ answer }}</label>
         </form>
 
         <button @click="markAnswer(chosenAnswer)" :disabled="!chosenAnswer">submit</button>
@@ -51,14 +51,18 @@
 </template>
 
 <style>
-.question-header, .current-question, .answer {
+.question-header,
+.current-question,
+.answer {
   text-align: center;
 }
+
 .current-question {
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
 }
+
 .answer {
   display: flex;
   padding: 10px 5px;
@@ -66,15 +70,16 @@
   margin: 10px;
   border-radius: 5%;
   justify-content: center;
-  
+
 }
 
-input[type="radio"]{
+input[type="radio"] {
   visibility: hidden;
   height: 0;
   width: 0;
 }
-input[type="radio"]:checked + label{
+
+input[type="radio"]:checked+label {
   background-color: #8d57b8;
 }
 
